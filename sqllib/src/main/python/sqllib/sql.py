@@ -240,18 +240,22 @@ class SQLBase(object):
 
         return ",".join([f"%({x})s" for x in vars])
 
-    @classmethod
-    def auto_where(cls, asdict=False, **kwargs):
+    def auto_where(self, asdict=False, **kwargs):
+        asdict = asdict or not self.mysql
         where = []
-        bindvars = {} if asdict else []
+        bindvars = {} if asdict or not self.mysql else []
         for k, v in kwargs.items():
             if v is not None:
                 if asdict:
-                    where.append("{}=%({})s".format(k, k))
                     bindvars[k] = v
+                    if self.mysql:
+                        where.append("{}=%({})s".format(k, k))
+                    else:
+                        where.append("{}=:{}".format(k, k))
                 else:
                     where.append("{}=%s".format(k))
                     bindvars.append(v)
+
         return where, bindvars
 
     @classmethod

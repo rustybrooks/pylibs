@@ -465,7 +465,10 @@ class TestHelpers(unittest.TestCase):
             [list(x) for x in chunked(input, 3)], [[0, 1, 2], [3, 4, 5], [6, 7]]
         )
 
-    def test_auto_where(self):
+    def test_auto_where_mysql(self):
+        SQL.mysql = True
+        SQL.postgres = False
+
         w, b = SQL.auto_where(a=1, b=2, c=3)
         self.assertEqual(w, ["a=%s", "b=%s", "c=%s"])
         self.assertEqual(b, [1, 2, 3])
