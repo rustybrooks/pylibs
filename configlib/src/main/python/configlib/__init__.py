@@ -5,7 +5,7 @@ import os
 logger = logging.getLogger(__name__)
 
 _config = None
-_config_file = os.getenv('CONFIG_FILE')
+_config_file = os.getenv("CONFIG_FILE")
 
 
 def set_config_file(config_file):

@@ -557,15 +557,23 @@ class PostgresCache(CacheBase):
             values(%s, %s, %s) 
             on duplicate key update value=values(value), expiration=values(expiration)
         """
-        expiration = datetime.datetime.utcnow() + datetime.timedelta(seconds=self.timeout)
-        bindvars = [self._cache_key(key), json.dumps(cache, cls=OurJSONEncoder), expiration]
+        expiration = datetime.datetime.utcnow() + datetime.timedelta(
+            seconds=self.timeout
+        )
+        bindvars = [
+            self._cache_key(key),
+            json.dumps(cache, cls=OurJSONEncoder),
+            expiration,
+        ]
         self.sql.execute(query, bindvars)
 
     def load_cache(self, key):
-        val = self.sql.select_0or1("select * from caches where cache_key=%s", [self._cache_key(key)])
+        val = self.sql.select_0or1(
+            "select * from caches where cache_key=%s", [self._cache_key(key)]
+        )
         if val:
             v = json.loads(val.value)
-            v['created'] = dateutil.parser.parse(v['created'])
+            v["created"] = dateutil.parser.parse(v["created"])
             return v
 
         return None
@@ -574,21 +582,28 @@ class PostgresCache(CacheBase):
         return self.load_cache(key) is not None
 
     def delete_cache(self, key):
-        self.sql.delete('caches', "cache_key=%s", [self._cache_key(key)])
+        self.sql.delete("caches", "cache_key=%s", [self._cache_key(key)])
 
     def keys(self):
-        return list(self.sql.select_column("select cache_key from caches where cache_key like %s", [self.prefix_key + ":"]))
+        return list(
+            self.sql.select_column(
+                "select cache_key from caches where cache_key like %s",
+                [self.prefix_key + ":"],
+            )
+        )
 
     @classmethod
     def add_migration(cls, migration_obj):
-        migration_obj.add_statement("""
+        migration_obj.add_statement(
+            """
             create table caches(
                 cache_key char(65) not null primary key,
                 value json,
                 expiration timestamp
             )
-        """)
+        """
+        )
 
     @classmethod
     def migration_delete_tables(cls):
-        return ['caches']
+        return ["caches"]
