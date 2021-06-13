@@ -709,7 +709,7 @@ def api_int(intstr, default=0):
         return default
 
 
-def api_flat(fstr, default=0):
+def api_float(fstr, default=0):
     if fstr is None:
         return None
 

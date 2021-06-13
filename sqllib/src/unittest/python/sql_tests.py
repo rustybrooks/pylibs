@@ -16,6 +16,7 @@ SQL = sql_factory(
     database="test",
     flask_storage=False,
 )
+# SQL.mysql = mysql
 logger = logging.getLogger(__name__)
 
 

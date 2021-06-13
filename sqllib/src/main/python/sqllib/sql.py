@@ -584,28 +584,40 @@ class SQLConn(object):
         data,
         ignore_duplicates=False,
         batch_size=200,
-        format=None,
         on_duplicate=None,
+        returning=True,
     ):
-        def _ignore():
-            return " ignore" if self.sql.mysql else " or ignore"
+        def _ignore_pre():
+            if self.sql.mysql:
+                return " ignore"
+            elif self.sql.sqlite:
+                return "or ignore"
+
+            return ""
+
+        def _ignore_post():
+            if self.sql.postgres:
+                return "on conflict do nothing"
+
+            return ""
 
         if not data:
             return 0
 
-        sample = data if isinstance(data, DICT_TYPE) else data[0]
+        sample = data if isinstance(data, dict) else data[0]
         columns = sorted(sample.keys())
-        if self.sql.mysql or format and format == "mysql":
+        if self.sql.mysql:
             values = ["%({})s".format(c) for c in columns]
         else:
             values = [":{}".format(c) for c in columns]
 
-        query = "insert{ignore} into {table}({columns}) values ({values}) {on_duplicate} {returning}".format(
-            ignore=_ignore() if ignore_duplicates else "",
+        query = "insert{ignore_pre} into {table}({columns}) values ({values}) {on_duplicate} {ignore_post} {returning}".format(
+            ignore_pre=_ignore_pre() if ignore_duplicates else "",
+            ignore_post=_ignore_post() if ignore_duplicates else "",
             table=table_name,
             columns=", ".join(columns),
             values=", ".join(values),
-            returning="returning *" if self.sql.postgres else "",
+            returning="returning *" if self.sql.postgres and returning else "",
             on_duplicate=on_duplicate or "",
         )
 
@@ -613,7 +625,7 @@ class SQLConn(object):
             if isinstance(data, DICT_TYPE):
                 rs = c.execute(self.maybe_text(query), data)
                 if self.sql.postgres:
-                    return rs.fetchone()
+                    return dictobj(rs.fetchone().items())
                 else:
                     return rs.lastrowid  # mysql only??
             else:
