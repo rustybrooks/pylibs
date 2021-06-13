@@ -9,6 +9,8 @@ if [ "$1" != "" ]; then
     LIBS=$1
 fi
 
+find . -name target -exec rm -rf \{\} \;
+
 docker build -t pylibs-builder:$TAG .
 
 for LIB in $LIBS; do
@@ -20,3 +22,5 @@ done
 
 docker-compose down -v --rmi local --remove-orphans
 docker rmi pylibs-builder:$TAG
+
+find . -name '*.whl'

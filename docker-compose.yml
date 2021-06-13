@@ -10,8 +10,8 @@ services:
     depends_on:
       - mysql-server
     volumes:
-      - ./api-framework/target:/pylibs/api-framework/target
-      - ./sqllib/target:/pylibs/sqllib/target
+      - ./api-framework:/pylibs/api-framework
+      - ./sqllib:/pylibs/sqllib
 
   mysql-server:
       image: mysql:5.7
