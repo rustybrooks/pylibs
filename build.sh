@@ -3,7 +3,7 @@
 set -x
 
 TAG="latest"
-LIBS="api-framework sqllib"
+LIBS="api-framework sqllib cachelib configlib"
 
 if [ "$1" != "" ]; then
     LIBS=$1
@@ -21,6 +21,6 @@ for LIB in $LIBS; do
 done
 
 docker-compose down -v --rmi local --remove-orphans
-docker rmi pylibs-builder:$TAG
+# docker rmi pylibs-builder:$TAG
 
 find . -name '*.whl'

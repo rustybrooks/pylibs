@@ -18,7 +18,7 @@ requires_python = ">=3.7.0"
 
 @init
 def set_properties(project):
-    project.version = '0.0.1'
+    project.version = "0.0.1"
 
     project.depends_on_requirements("requirements.txt")
     project.build_depends_on_requirements("build_requirements.txt")

@@ -12,6 +12,8 @@ services:
     volumes:
       - ./api-framework:/pylibs/api-framework
       - ./sqllib:/pylibs/sqllib
+      - ./cachelib:/pylibs/cachelib
+      - ./configlib:/pylibs/configlib
 
   mysql-server:
       image: mysql:5.7
