@@ -1,21 +1,20 @@
 import copy
 import datetime
-import dateutil.parser
 import decimal
+import functools
 import inspect
 import json
-import newrelic.agent
-import time
-import pytz
-
-from collections import defaultdict
-from flask import Response, request
-import functools
 import logging
-import newrelic.agent
 import os
 import traceback
+from collections import defaultdict
+
+import dateutil.parser
+import newrelic.agent
+import newrelic.agent
+import pytz
 import werkzeug.exceptions
+from flask import Response, request
 
 try:
     from urllib.parse import urlencode
@@ -31,6 +30,16 @@ def build_absolute_url(path, params):
     return path + "?" + urlencode(params)
 
 
+class FlaskUser(object):
+    def __init__(self, username, user_id):
+        self.username = username
+        self.user_id = user_id
+        self.id = user_id
+        self.is_staff = False
+
+    def is_authenticated(self):
+        return self.id != 0
+
 
 # for compatibility with Django
 class HttpResponse(Response):
@@ -42,17 +51,6 @@ class HttpResponse(Response):
 
 class FileResponse(Response):
     pass
-
-
-class FlaskUser(object):
-    def __init__(self, username, user_id):
-        self.username = username
-        self.user_id = user_id
-        self.id = user_id
-        self.is_staff = False
-
-    def is_authenticated(self):
-        return self.id != 0
 
 
 class JSONResponse(Response):
@@ -155,7 +153,7 @@ def app_proxy(sa, fn, fnname, config, urlroot, urlprefix, cleanup_callback=None)
             else:
                 api_data = request.form
         except werkzeug.exceptions.BadRequest as e:
-            logger.warn(
+            logger.warning(
                 "werkzeug.exceptions.BadRequest: url=%r, data=%r, headers=%r",
                 request.path,
                 request.data,
@@ -255,7 +253,7 @@ class OurJSONEncoder(json.JSONEncoder):
         elif isinstance(obj, (datetime.datetime, datetime.date)):
             return obj.isoformat()
         elif isinstance(obj, bytes):
-            return obj.decode('utf-8')
+            return obj.decode("utf-8")
         elif isinstance(obj, set):
             return list(obj)
         # elif isinstance(obj, bson.ObjectId):
@@ -514,10 +512,13 @@ def process_api(fn, api_object, app_blob, blob):
                     if arg == "limit" and app_blob["_config"]["max_page_limit"] > 0:
                         val = min(val, app_blob["_config"]["max_page_limit"])
                         if val == 0:  # why do people do this?  but they do
-                            raise Api.BadRequest("limit=0 not valid value - must pass positive integer")
+                            raise Api.BadRequest(
+                                "limit=0 not valid value - must pass positive integer"
+                            )
                     elif (
                         arg == "page"
-                        and val and val > app_blob["_config"].get("max_page", -1) > 0
+                        and val
+                        and val > app_blob["_config"].get("max_page", -1) > 0
                     ):
                         raise Api.BadRequest(
                             "Maximum allowed value for page parameter for this endpoint is {}".format(
@@ -547,7 +548,7 @@ def process_api(fn, api_object, app_blob, blob):
 
         # logger.info("transaction name=%r, group=%r", app_blob["_fnname"], app_blob["_newrelic_group"])
         newrelic.agent.set_transaction_name(
-            app_blob['_config']['function_url'] or app_blob['_fnname'],
+            app_blob["_config"]["function_url"] or app_blob["_fnname"],
             group=app_blob["_newrelic_group"],
         )
 
@@ -770,4 +771,3 @@ def test_limit_param():
                 missing_limit += [[app.__class__.__name__, fnname]]
 
     return missing_limit
-

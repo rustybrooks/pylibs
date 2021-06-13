@@ -9,9 +9,11 @@ from sqllib import SQLBase, dictobj, Migration, chunked, sql_factory
 
 SQL = sql_factory(
     write_url="mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4",
-    read_urls=["mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"],
-    password='1wombat2',
-    database='test',
+    read_urls=[
+        "mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"
+    ],
+    password="1wombat2",
+    database="test",
     flask_storage=False,
 )
 logger = logging.getLogger(__name__)
@@ -79,7 +81,9 @@ class TestTransactions(unittest.TestCase):
     def test_implied_readonly(self):
         SQLW = SQLBase(
             write_url="mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4",
-            read_urls=["mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"],
+            read_urls=[
+                "mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"
+            ],
         )
         self.assertEqual(SQLW.get_readonly(), False)
 
@@ -90,7 +94,9 @@ class TestTransactions(unittest.TestCase):
 
         SQLRO = SQLBase(
             write_url=None,
-            read_urls=["mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"],
+            read_urls=[
+                "mysql+pymysql://wombat:{password}@unit_test-mysql/{database}?charset=utf8mb4"
+            ],
         )
         self.assertEqual(SQLRO.get_readonly(), True)
 
@@ -124,7 +130,7 @@ class TestTransactions(unittest.TestCase):
     def test_select_lists(self):
         SQL.insert("foo", {"bar": 1, "baz": "aaa"})
         SQL.insert("foo", {"bar": 2, "baz": "bbb"})
-        fe = SQL.select_lists("select * from foo order by bar", columns=['bar', 'baz'])
+        fe = SQL.select_lists("select * from foo order by bar", columns=["bar", "baz"])
         self.assertEquals(next(fe), [1, "aaa"])
         self.assertEquals(next(fe), [2, "bbb"])
         with self.assertRaises(StopIteration):
@@ -402,11 +408,11 @@ class TestHelpers(unittest.TestCase):
         mylist = [1, 2, 3, 4, 5]
         self.assertEquals(
             "%(x_0)s,%(x_1)s,%(x_2)s,%(x_3)s,%(x_4)s",
-            SQL.dict_in_clause(bindvars, mylist, 'x')
+            SQL.dict_in_clause(bindvars, mylist, "x"),
         )
 
         # this function has the side effect of adding entries to bindvars
-        self.assertEqual(bindvars, {'x_0': 1, 'x_1': 2, 'x_2': 3, 'x_3': 4, 'x_4': 5})
+        self.assertEqual(bindvars, {"x_0": 1, "x_1": 2, "x_2": 3, "x_3": 4, "x_4": 5})
 
     def test_construct_where(self):
         b, w = SQL.construct_where({"a": 1, "b": 2})

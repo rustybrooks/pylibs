@@ -81,7 +81,6 @@ class SQLBase(object):
         if not isinstance(read_urls, (tuple, list)):
             read_urls = [read_urls]
 
-        # logger.warning("[sql] write=%r, readers=%r, flask_storage=%r", write_url, read_urls, flask_storage)
         self.writer_is_reader = writer_is_reader
         self.write_engine = None
         self.read_engines = None
@@ -133,7 +132,6 @@ class SQLBase(object):
             return random.choice(self.read_engines)
         else:
             if self.write_engine is None:
-                # logger.warning("[sql] Creating SQL write engine: %r", self.write_url)
                 self.write_engine = sqlalchemy.create_engine(
                     self.write_url, **self.connection_kwargs
                 )
@@ -168,7 +166,6 @@ class SQLBase(object):
 
         for r in [0, 1]:
             key = "conn-{}-{}".format(self.main_url, r)
-            # logger.warning("cleanup conn key=%r, found=%r", key, hasattr(_thread_locals, key))
             if hasattr(_thread_locals, key):
                 c = getattr(_thread_locals, key)
                 c.cleanup()
@@ -383,7 +380,6 @@ class SQLBase(object):
 
     # This is intended to proxy any unknown function automatically to the connection
     def __getattr__(self, item):
-        # logger.warning("getattr - item=%r", item)
         conn = self.conn()
 
         def proxy(*args, **kwargs):
@@ -466,11 +462,6 @@ class SQLConn(object):
             raise Exception("Bailing")
 
         if self.sql.mysql and self._transaction:
-            # logger.error(
-            #     "This is mysql and we have a nested transaction.  These don't really work in mysql!  %r - %r",
-            #     self._transaction,
-            #     traceback.format_stack(),
-            # )
             self._transaction.append(None)
             return
 
@@ -799,8 +790,6 @@ def sql_factory(
     database=None,
     write_url=None,
     read_urls=None,
-    write_url_key="mysql-writer",
-    read_urls_key="mysql-readers",
     isolation_level="READ COMMITTED",
     pool_recycle=60 * 60 * 2,
     flask_storage=True,
@@ -810,8 +799,8 @@ def sql_factory(
 ):
     sql_key = sql_key or database
     if sql_key not in _sql_objects:
-        write_url = write_url or get_value(write_url_key)
-        read_urls = read_urls or get_value(read_urls_key)
+        write_url = write_url
+        read_urls = read_urls
         logger.warning(
             "Creating SQL object, database=%r, sql_key=%r, write_url=%r, read_urls=%r",
             database,

@@ -63,8 +63,16 @@ class TestApiStuff(unittest.TestCase):
                 return "admin"
 
         self.api = TestApi()
-        framework.app_class_proxy(self.app, "", "test", self.api, cleanup_callback=Mock(side_effect=Exception("cleanup")))
-        framework.app_class_proxy(self.app, "/foo", "framework", framework.FrameworkApi())
+        framework.app_class_proxy(
+            self.app,
+            "",
+            "test",
+            self.api,
+            cleanup_callback=Mock(side_effect=Exception("cleanup")),
+        )
+        framework.app_class_proxy(
+            self.app, "/foo", "framework", framework.FrameworkApi()
+        )
 
     def tearDown(self) -> None:
         framework.app_registry = copy.deepcopy(self.registry_save)
@@ -201,13 +209,12 @@ class TestHelpers(unittest.TestCase):
         )
 
         self.assertEqual(
-            framework.api_datetime(0),
-             datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
+            framework.api_datetime(0), datetime.datetime(1970, 1, 1, tzinfo=pytz.utc)
         )
 
         self.assertEqual(
             framework.api_datetime(1577836800.0),
-            datetime.datetime(2020, 1, 1, tzinfo=pytz.utc)
+            datetime.datetime(2020, 1, 1, tzinfo=pytz.utc),
         )
 
         self.assertEqual(

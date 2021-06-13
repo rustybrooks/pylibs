@@ -1,13 +1,13 @@
 import json
 import logging
 import os
-from api_framework import OurJSONEncoder, Api
+
 import requests
+from api_framework import OurJSONEncoder, Api
 from requests.adapters import HTTPAdapter
 from requests.packages.urllib3.util.retry import Retry
 
-api_frameworks = {
-}
+api_frameworks = {}
 
 logger = logging.getLogger(__name__)
 
@@ -90,9 +90,9 @@ class FrameworkEndpoint(object):
                 e = r.json()
             except:
                 if isinstance(r.content, bytes):
-                    e = {'content': r.content.decode('utf-8')}
+                    e = {"content": r.content.decode("utf-8")}
                 else:
-                    e = {'content': r.content}
+                    e = {"content": r.content}
 
             ec = error_class(e)
             if r.status_code not in status_code_map:
@@ -103,7 +103,7 @@ class FrameworkEndpoint(object):
             return r.json()
         except:
             if isinstance(r.content, bytes):
-                return r.content.decode('utf-8')
+                return r.content.decode("utf-8")
             else:
                 return r.content
 
@@ -233,11 +233,11 @@ class Frameworks(object):
             json.dump(self._endpoints, f)
 
 
-def factory(framework=None, application=None, environment=None, login_required=None, login_key=None, **kwargs):
+def factory(framework=None, application=None, environment=None, **kwargs):
     headers = {}
 
     if framework:
-        environment = framework.split('-')[0]
+        environment = framework.split("-")[0]
     else:
         framework = "{}-{}".format(environment, application)
 

@@ -80,14 +80,10 @@ class ClientTest(FlaskApiTestCase):
 
         self.api = TestApi()
         framework.app_class_proxy(self.app, "", "test", self.api)
-        framework.app_class_proxy(
-            self.app, "", "framework", framework.FrameworkApi()
-        )
+        framework.app_class_proxy(self.app, "", "framework", framework.FrameworkApi())
 
     def test_client(self):
-        with patch(
-            "api_framework.client.session", FakeSession(self.app_client)
-        ):
+        with patch("api_framework.client.session", FakeSession(self.app_client)):
             c = framework.client.Frameworks(
                 base_url="/",
                 framework_endpoint="framework/endpoints",
@@ -155,9 +151,7 @@ class ClientTest(FlaskApiTestCase):
             framework_key="test",
             save_path=tmp,
         )
-        with patch(
-            "api_framework.client.session", FakeSession(self.app_client)
-        ):
+        with patch("api_framework.client.session", FakeSession(self.app_client)):
             c.materialize()
 
         json_file = os.path.join(tmp, "test.json")
@@ -174,11 +168,12 @@ class ClientTest(FlaskApiTestCase):
         )
         session_mock.get = FakeSession(self.app_client).get
         with patch(
-            "api_framework.client.api_frameworks", {
+            "api_framework.client.api_frameworks",
+            {
                 "test": ["/", "framework/endpoints"],
                 "ci-foo": ["/ci-foo", "framework/endpoints"],
                 "prod-foo": ["/prod-foo", "framework/endpoints"],
-            }
+            },
         ):
             with patch("api_framework.client.session", session_mock):
                 c = framework.client.factory("test")
@@ -196,4 +191,3 @@ class ClientTest(FlaskApiTestCase):
 
                 c = framework.client.factory(environment="ci", application="foo")
                 self.assertEqual(c._base_url, "/ci-foo")
-
