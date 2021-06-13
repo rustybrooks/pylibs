@@ -709,6 +709,16 @@ def api_int(intstr, default=0):
         return default
 
 
+def api_flat(fstr, default=0):
+    if fstr is None:
+        return None
+
+    try:
+        return float(fstr)
+    except ValueError:
+        return default
+
+
 def api_datetime(dtstr, default=None, as_float=False):
     def _normalize(_d):
         if isinstance(_d, datetime.datetime):
