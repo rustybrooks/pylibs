@@ -124,6 +124,8 @@ def default_login_method(request=None, **kwargs):
     #
     return FlaskUser("Anonymous", 0)
 
+DEFAULT_LOGIN_METHOD = default_login_method
+
 
 def app_proxy(sa, fn, fnname, config, urlroot, urlprefix, cleanup_callback=None):
     _require_login = config.get("require_login", False)
