@@ -21,15 +21,23 @@ def ourbytes(x):
     return x.encode(encoding="utf-8")
 
 
-def arg_hash(*args, **kwargs):
-    h = hashlib.md5()
-    list(map(lambda x: h.update(ourbytes(str(x))), args))
-    list(
-        map(
-            lambda x: h.update(ourbytes(str(x) + str(kwargs[x]))), sorted(kwargs.keys())
+def arg_hash_gen(skip=None):
+    skip = skip or []
+
+    def fn(*args, **kwargs):
+        h = hashlib.md5()
+        list(map(lambda x: h.update(ourbytes(str(x))), args))
+        list(
+            map(
+                lambda x: h.update(ourbytes(str(x) + str(kwargs[x]))), sorted(kwargs.keys())
+            )
         )
-    )
-    return h.hexdigest()
+        return h.hexdigest()
+
+    return fn
+
+
+arg_hash = arg_hash_gen([])
 
 
 class OurJSONEncoder(json.JSONEncoder):
@@ -75,7 +83,7 @@ class CacheBase(object):
         self.prefix = prefix
         self.timeout = timeout
         self.grace = grace
-        self.keyfn = keyfn or arg_hash
+        self.keyfn = keyfn or arg_hash_gen()
         self.cachefn = cachefn or default_cachefn
         self.binary = binary
         self.debug = debug
