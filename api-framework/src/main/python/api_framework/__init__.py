@@ -44,13 +44,24 @@ class FlaskUser(object):
 # for compatibility with Django
 class HttpResponse(Response):
     def __init__(self, content, status=200, content_type="text/html"):
-        super(HttpResponse, self).__init__(
+        super().__init__(
             response=content, content_type=content_type, status=status
         )
 
 
 class FileResponse(Response):
-    pass
+    def __init__(self, response_object=None, content=None, content_type=None):
+        if response_object:
+            super().__init__(
+                response=response_object.response,
+                content_type=response_object.content_type,
+                status=response_object.status,
+            )
+        else:
+            super().__init__(
+                response=content, content_type=content_type
+            )
+
 
 
 class JSONResponse(Response):
@@ -71,7 +82,7 @@ class JSONResponse(Response):
         if detail:
             self._data["detail"] = detail
 
-        super(JSONResponse, self).__init__(
+        super().__init__(
             response=json_encode(self._data, encoder=json_encoder, indent=indent),
             status=status,
             mimetype="application/json",
@@ -83,7 +94,7 @@ class XMLResponse(Response):
         status = status or 200
         self.content = content if content is not None else ""
 
-        super(XMLResponse, self).__init__(
+        super().__init__(
             response=self.content, status=status, mimetype="application/xml"
         )
 
